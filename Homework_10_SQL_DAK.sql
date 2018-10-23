@@ -48,9 +48,8 @@ UPDATE actor
 -- It turns out that GROUCHO was the correct name after all! In a single query, if the first name of the actor is currently HARPO, change it to GROUCHO.
 UPDATE actor SET first_name = 'GROUCHO' WHERE first_name = 'HARPO';
 
--- !!! 5a. You cannot locate the schema of the address table. Which query would you use to re-create it?
-CREATE TABLE address2 AS
-	SELECT * FROM address;
+-- 5a. You cannot locate the schema of the address table. Which query would you use to re-create it?
+SHOW CREATE TABLE address;
 
 -- 6a. Use JOIN to display the first and last names, as well as the address, of each staff member. Use the tables staff and address:
 SELECT staff.first_name, staff.last_name, address.address
@@ -139,17 +138,16 @@ SELECT staff.store_id, SUM(payment.amount)
 		INNER JOIN payment ON staff.staff_id = payment.staff_id
 			Group By staff.store_id;
 
--- !! 7g. Write a query to display for each store its store ID, city, and country.
+-- 7g. Write a query to display for each store its store ID, city, and country.
 -- store.store_id -> (store.address_id -> address.address_id) -> (address.city_id -> city.city_id) -> (city.country_id -> country.country_id) -> country.name
-SELECT store.store_id, city.city, country.country -- DELETE - THIS ONE HAS A BUG --
-	FROM store
-		WHERE address_id IN(
-			SELECT address_id FROM address
-				WHERE city_id IN(
-					SELECT city_id FROM city
-						WHERE country_id IN(
-							SELECT country_id FROM country
-                            WHERE city.country_id = country.country_id)));
+
+
+SELECT store.store_id, city.city, country.country
+FROM store, address, city, country
+Where store.address_id = address.address_id
+AND address.city_id = city.city_id
+AND city.country_id = country.country_id;
+                
 
 SELECT store.store_id, city.city, country.country
 	FROM store
